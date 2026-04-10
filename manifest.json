@@ -2,7 +2,8 @@
   "name": "bAIkov — Агрокалькулятор",
   "short_name": "bAIkov",
   "description": "Офлайн расчёт нормы высева для агрономов",
-  "start_url": "/index.html",
+  "start_url": "/baikov-app/index.html",
+  "scope": "/baikov-app/",
   "display": "standalone",
   "background_color": "#1a1a18",
   "theme_color": "#1a1a18",
@@ -22,6 +23,5 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "utilities"],
-  "screenshots": []
+  "categories": ["productivity", "utilities"]
 }
