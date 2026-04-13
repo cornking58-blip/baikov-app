@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>bAIkov — Норма высева v4</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0ea5e9"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="bAIkov"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --w:#fff;--off:#f8f8f6;--light:#eeeee9;--mid:#cdcdc6;
+  --muted:#8f8f87;--ink:#161614;--ink2:#38383490;
+  --ai:#0ea5e9;--aig:rgba(14,165,233,.14);--aid:rgba(14,165,233,.07);
+  --ok:#16a34a;--okd:rgba(22,163,74,.08);--okb:rgba(22,163,74,.22);
+  --warn:#d97706;--warnd:#fffbeb;--warnb:#fde68a;
+  --err:#dc2626;--errd:#fef2f2;--errb:#fecaca;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono',monospace;
+  --sans:'Outfit',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;-webkit-text-size-adjust:100%}
+body{background:var(--w);color:var(--ink);font-family:var(--sans);line-height:1.55;min-height:100vh;-webkit-font-smoothing:antialiased}
+input,select,button{font-family:var(--sans);outline:none}
+input[type=number]::-webkit-inner-spin-button{opacity:.35}
+
+/* ── LOGO ── */
+.logo{display:inline-flex;align-items:baseline;font-family:var(--serif);font-size:1.5rem;letter-spacing:-.01em;color:var(--ink);text-decoration:none;user-select:none;line-height:1}
+.logo .ai{color:var(--ai);font-style:italic;position:relative}
+.logo .ai::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1.5px;background:var(--ai);opacity:.4;border-radius:2px}
+.logo-xl{font-size:2.6rem;letter-spacing:-.02em}
+.logo-xl .ai{text-shadow:0 0 28px var(--aig)}
+.logo-sm{font-size:1.05rem}
+
+/* ── HEADER ── */
+.hdr{position:sticky;top:0;z-index:300;background:rgba(255,255,255,.93);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--light)}
+.hdr-in{max-width:1080px;margin:0 auto;padding:0 18px;height:54px;display:flex;align-items:center;justify-content:space-between}
+.hdr-r{display:flex;align-items:center;gap:12px}
+.badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px 3px 7px;border-radius:20px}
+.badge-ok{color:var(--ok);background:var(--okd);border:1px solid var(--okb)}
+.bdot{width:5px;height:5px;border-radius:50%;background:var(--ok);animation:blink 2.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.vtag{font-family:var(--mono);font-size:.54rem;letter-spacing:.1em;color:var(--mid)}
+
+/* ── INSTALL BANNER ── */
+.ibanner{background:var(--aid);border-bottom:1px solid rgba(14,165,233,.18);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ibanner.hidden{display:none!important}
+.ib-t{font-size:.74rem;color:var(--ink2)}
+.ib-t strong{color:var(--ai)}
+.ib-go{background:var(--ai);color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.ib-x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:0 3px;flex-shrink:0}
+
+/* ── HERO ── */
+.hero{max-width:1080px;margin:0 auto;padding:32px 18px 22px;display:flex;align-items:flex-end;justify-content:space-between;gap:18px;border-bottom:1px solid var(--light)}
+.hero-ey{font-family:var(--mono);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ai);margin-bottom:8px}
+.hero-h{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.4rem);line-height:1.12;font-weight:400}
+.hero-h em{font-style:italic;color:var(--muted)}
+.hero-d{margin-top:8px;font-size:.8rem;color:var(--muted);max-width:360px;line-height:1.65}
+.hero-r{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.hero-sub{font-family:var(--mono);font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+@media(max-width:600px){.hero{flex-direction:column;align-items:flex-start}.hero-r{align-items:flex-start}}
+
+/* ── MAIN ── */
+.main{max-width:1080px;margin:0 auto;padding:22px 18px 70px}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+
+/* ── PANEL ── */
+.panel{background:var(--w);border:1.5px solid var(--light);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.panel-r{background:var(--off)}
+.ph{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--light)}
+.ph-t{font-family:var(--mono);font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+
+/* ── FIELD GROUPS ── */
+.fb{display:flex;flex-direction:column;gap:11px;padding:13px;background:var(--off);border-radius:8px;border:1px solid var(--light)}
+.fb.hidden{display:none}
+.fb-ey{font-family:var(--mono);font-size:.54rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ai);padding-bottom:8px;border-bottom:1px solid var(--light)}
+.fr{display:flex;gap:9px}
+@media(max-width:400px){.fr{flex-direction:column}}
+.fg{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.fl{font-size:.69rem;font-weight:500;color:var(--ink);letter-spacing:.01em}
+.fi,.fs{background:var(--w);border:1.5px solid var(--light);border-radius:5px;color:var(--ink);width:100%;transition:border-color .16s,box-shadow .16s;font-size:.8rem}
+.fi{padding:8px 10px;font-family:var(--mono)}
+.fi:focus,.fs:focus{border-color:var(--ai);box-shadow:0 0 0 2.5px var(--aig)}
+.fi::placeholder{color:var(--mid)}
+.fs{padding:7px 24px 7px 10px;appearance:none;-webkit-appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%238f8f87'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.fh{font-size:.61rem;color:var(--ai);font-family:var(--mono);min-height:11px;line-height:1.4}
+.fh.warn{color:var(--warn)}
+.fh.err{color:var(--err)}
+
+/* chips */
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px}
+.chip{font-family:var(--mono);font-size:.58rem;background:var(--w);border:1px solid var(--light);border-radius:20px;padding:2px 8px;color:var(--ink2)}
+.chip.a{background:var(--aid);border-color:rgba(14,165,233,.25);color:var(--ai)}
+.crop-note{font-size:.69rem;color:var(--muted);line-height:1.6;margin-top:3px}
+
+/* GOST tag */
+.gtag{display:inline-block;font-family:var(--mono);font-size:.52rem;letter-spacing:.08em;border:1px solid var(--mid);border-radius:3px;padding:1px 5px;color:var(--muted);margin-left:5px;vertical-align:middle}
+
+/* ── BUTTON ── */
+.cbtn{background:var(--ink);color:#fff;border:none;border-radius:8px;padding:13px 18px;font-size:.8rem;font-weight:600;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:background .16s,transform .12s,box-shadow .18s;width:100%}
+.cbtn:hover{background:#282826;transform:translateY(-1px);box-shadow:0 6px 18px rgba(22,22,20,.15)}
+.cbtn:active{transform:none;box-shadow:none}
+.cbtn-arr{transition:transform .16s}
+.cbtn:hover .cbtn-arr{transform:translateX(4px)}
+
+/* ── RESULTS ── */
+.res-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 18px;gap:11px;text-align:center}
+.re-ico{width:52px;height:52px;border-radius:50%;border:1.5px dashed var(--mid);display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.re-t{font-size:.77rem;color:var(--muted);line-height:1.65}
+
+/* big numbers */
+.rnums{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.rcard{border-radius:8px;padding:13px;display:flex;flex-direction:column;gap:3px}
+.rcard.p{background:var(--ink);color:#fff}
+.rcard.s{background:var(--w);border:1.5px solid var(--light)}
+.rc-l{font-family:var(--mono);font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;opacity:.5}
+.rc-v{font-family:var(--serif);font-size:2rem;line-height:1;letter-spacing:-.02em}
+.rcard.p .rc-v{color:#fff}
+.rcard.s .rc-v{color:var(--ink)}
+.rc-u{font-family:var(--mono);font-size:.56rem;opacity:.45}
+
+/* result blocks */
+.rb{background:var(--w);border:1.5px solid var(--light);border-radius:8px;padding:12px}
+.rb-t{font-family:var(--mono);font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.rb-t::after{content:'';flex:1;height:1px;background:var(--light)}
+
+/* steps */
+.srow{display:grid;grid-template-columns:1fr auto;gap:5px 8px;padding:5px 0;border-bottom:1px solid var(--off);font-size:.72rem;align-items:baseline}
+.srow:last-child{border-bottom:none}
+.s-l{color:var(--ink)}
+.s-v{font-family:var(--mono);font-size:.7rem;font-weight:500;color:var(--ai);text-align:right;white-space:nowrap}
+.s-n{font-size:.62rem;color:var(--muted);grid-column:1/-1;margin-top:-2px}
+
+/* factors */
+.frow{display:flex;align-items:center;justify-content:space-between;padding:5px 7px;border-radius:4px;font-size:.71rem;gap:8px}
+.frow:hover{background:var(--off)}
+.f-n{color:var(--ink);flex:1}
+.f-v{font-family:var(--mono);font-size:.68rem;font-weight:500;padding:2px 6px;border-radius:20px;white-space:nowrap}
+.f-v.up{color:#92400e;background:#fef3c7}
+.f-v.eq{color:var(--muted);background:var(--light)}
+.f-v.ok{color:#166534;background:#dcfce7}
+
+/* alerts */
+.alert{border-radius:8px;padding:11px 13px}
+.alert+.alert{margin-top:7px}
+.alert-w{background:var(--warnd);border:1.5px solid var(--warnb)}
+.alert-e{background:var(--errd);border:1.5px solid var(--errb)}
+.alert-g{background:var(--okd);border:1px solid var(--okb)}
+.al-t{font-family:var(--mono);font-size:.53rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px}
+.alert-w .al-t{color:#92400e}
+.alert-e .al-t{color:#991b1b}
+.alert-g .al-t{color:#166534}
+.al-rows{display:flex;flex-direction:column;gap:3px}
+.al-row{font-size:.71rem;line-height:1.55;display:flex;gap:6px}
+.alert-w .al-row{color:#78350f}
+.alert-e .al-row{color:#7f1d1d}
+.alert-g .al-row{color:#166534}
+.al-row::before{content:'→';flex-shrink:0;opacity:.65}
+
+/* depth info */
+.depth-info{background:var(--aid);border:1px solid rgba(14,165,233,.2);border-radius:6px;padding:8px 11px;font-size:.69rem;color:var(--ink2);line-height:1.6}
+.depth-info strong{color:var(--ai)}
+
+/* ── FOOTER ── */
+.ftr{border-top:1px solid var(--light);padding:16px 18px}
+.ftr-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.ftr-l{display:flex;flex-direction:column;gap:3px}
+.ftr-c{font-size:.66rem;color:var(--muted)}
+.ftags{display:flex;gap:5px;flex-wrap:wrap}
+.ftag{font-family:var(--mono);font-size:.54rem;letter-spacing:.07em;color:var(--mid);border:1px solid var(--light);padding:2px 7px;border-radius:20px}
+
+/* utils */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeUp .3s ease forwards}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.shake{animation:shake .3s ease}
+.hidden{display:none!important}
+optgroup{color:var(--muted);font-style:normal;font-size:.75rem}
+option{background:#fff;color:var(--ink)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="#">b<span class="ai">AI</span>kov</a>
+    <div class="hdr-r">
+      <span class="vtag">v4</span>
+      <div class="badge badge-ok"><span class="bdot"></span>Offline</div>
+    </div>
+  </div>
+</header>
+
+<!-- INSTALL BANNER -->
+<div class="ibanner hidden" id="instBanner">
+  <span class="ib-t">📲 Установить <strong>bAIkov</strong> как приложение на телефон?</span>
+  <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+    <button class="ib-go" id="instBtn">Установить</button>
+    <button class="ib-x" id="instX">✕</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-ey">Норма высева · РФ · ГОСТ Р 52325-2005</div>
+    <h1 class="hero-h">Агрокалькулятор<br/><em>нормы высева</em></h1>
+    <p class="hero-d">11 культур. Расчёт через посевную годность и полевую поправку. По российским стандартам.</p>
+  </div>
+  <div class="hero-r">
+    <div class="logo logo-xl">b<span class="ai">AI</span>kov</div>
+    <span class="hero-sub">Agro Intelligence</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+<div class="grid">
+
+<!-- ══════════ INPUT PANEL ══════════ -->
+<div class="panel">
+  <div class="ph">
+    <span class="ph-t">Параметры расчёта</span>
+    <span>⚙️</span>
+  </div>
+
+  <!-- Культура -->
+  <div class="fb">
+    <div class="fb-ey">Культура и регион</div>
+    <div class="fr">
+      <div class="fg" style="flex:1.4">
+        <label class="fl">Культура</label>
+        <select id="crop" class="fs">
+          <option value="">— выберите —</option>
+          <optgroup label="🌾 Зерновые колосовые">
+            <option value="winter_wheat">Пшеница озимая</option>
+            <option value="spring_wheat">Пшеница яровая</option>
+            <option value="barley_feed">Ячмень фуражный</option>
+            <option value="barley_brew">Ячмень пивоваренный</option>
+            <option value="oat">Овёс</option>
+          </optgroup>
+          <optgroup label="🫘 Зернобобовые">
+            <option value="pea">Горох</option>
+            <option value="lentil">Чечевица</option>
+            <option value="chickpea">Нут</option>
+          </optgroup>
+          <optgroup label="🌿 Масличные крестоцветные">
+            <option value="rapeseed_spring">Рапс яровой</option>
+            <option value="rapeseed_winter">Рапс озимый</option>
+          </optgroup>
+          <optgroup label="🍬 Технические">
+            <option value="sugar_beet">Сахарная свёкла</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Макрорегион РФ</label>
+        <select id="region" class="fs">
+          <option value="nonchernozem">Нечернозёмная зона</option>
+          <option value="ccr">ЦЧР</option>
+          <option value="volga">Поволжье</option>
+          <option value="south">Юг / Сев. Кавказ</option>
+          <option value="ural">Урал</option>
+          <option value="west_sib">Западная Сибирь</option>
+          <option value="east_sib">Восточная Сибирь</option>
+          <option value="fareast">Дальний Восток</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Подтип культуры -->
+    <div class="fg hidden" id="subtypeWrap">
+      <label class="fl" id="subtypeLabel">Подтип</label>
+      <select id="subtype" class="fs">
+        <option value="">— выберите —</option>
+      </select>
+    </div>
+
+    <!-- Предшественник -->
+    <div class="fg">
+      <label class="fl">Предшественник</label>
+      <select id="predecessor" class="fs">
+        <option value="fallow">Пар</option>
+        <option value="legume">Бобовые</option>
+        <option value="grain">Зерновые</option>
+        <option value="row">Пропашные</option>
+        <option value="rape">Рапс</option>
+        <option value="beet">Свёкла</option>
+      </select>
+    </div>
+
+    <!-- Инфо о культуре -->
+    <div id="cropInfoWrap" class="hidden">
+      <div id="cropChips" class="chips"></div>
+      <div id="cropNote" class="crop-note"></div>
+    </div>
+  </div>
+
+  <!-- Целевая норма/густота -->
+  <div class="fb">
+    <div class="fb-ey">Целевое значение</div>
+    <div class="fg">
+      <label class="fl" id="targetLabel">Целевая норма, млн вс. семян/га</label>
+      <input type="number" id="target" class="fi" placeholder="авто" min="0.1" step="0.1"/>
+      <span class="fh" id="targetH"></span>
+    </div>
+  </div>
+
+  <!-- Качество семян -->
+  <div class="fb">
+    <div class="fb-ey">Качество семян <span class="gtag">ГОСТ Р 52325</span></div>
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">М1000, г</label>
+        <input type="number" id="m1000" class="fi" placeholder="напр. 42" min="0.1" step="0.1"/>
+        <span class="fh" id="m1000H"></span>
+      </div>
+      <div class="fg">
+        <label class="fl">Всхожесть лаб., % <span class="gtag">ГОСТ</span></label>
+        <input type="number" id="labGerm" class="fi" placeholder="напр. 92" min="1" max="100"/>
+        <span class="fh" id="germH"></span>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">Чистота, %</label>
+        <input type="number" id="purity" class="fi" placeholder="напр. 99" min="1" max="100"/>
+        <span class="fh" id="purityH"></span>
+      </div>
+      <div class="fg">
+        <label class="fl">Энергия прорастания, % <span class="gtag">ГОСТ 12038</span></label>
+        <input type="number" id="energy" class="fi" placeholder="необяз." min="1" max="100"/>
+        <span class="fh" id="energyH"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Полевые условия -->
+  <div class="fb">
+    <div class="fb-ey">Условия посева</div>
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">Срок сева</label>
+        <select id="timing" class="fs">
+          <option value="opt">Оптимальный</option>
+          <option value="t1">Опоздание 5–10 дн.</option>
+          <option value="t2">Опоздание 11–15 дн.</option>
+          <option value="t3">Опоздание &gt;15 дн.</option>
+          <option value="early">Ранний / холодная почва</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Влажность слоя заделки</label>
+        <select id="moisture" class="fs">
+          <option value="ok">Достаточная</option>
+          <option value="low">Ограниченная</option>
+          <option value="dry">Пересушен</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <button class="cbtn" id="calcBtn">
+    <span>Рассчитать норму высева</span>
+    <span class="cbtn-arr">→</span>
+  </button>
+</div>
+
+<!-- ══════════ RESULT PANEL ══════════ -->
+<div class="panel panel-r">
+  <div class="ph">
+    <span class="ph-t">Результат расчёта</span>
+    <span>📊</span>
+  </div>
+
+  <div id="resEmpty" class="res-empty">
+    <div class="re-ico">🌱</div>
+    <div class="re-t">Заполните параметры<br/>и нажмите «Рассчитать»</div>
+  </div>
+
+  <div id="resContent" class="hidden" style="display:flex;flex-direction:column;gap:12px">
+
+    <!-- Главные числа -->
+    <div class="rnums">
+      <div class="rcard p">
+        <span class="rc-l">Норма высева</span>
+        <span class="rc-v" id="rKg">—</span>
+        <span class="rc-u">кг / га</span>
+      </div>
+      <div class="rcard s">
+        <span class="rc-l">Семян</span>
+        <span class="rc-v" id="rPcs">—</span>
+        <span class="rc-u" id="rPcsU">млн шт/га</span>
+      </div>
+    </div>
+
+    <!-- Ключевые показатели -->
+    <div class="rb">
+      <div class="rb-t">Ключевые показатели</div>
+      <div id="keyBlock"></div>
+    </div>
+
+    <!-- Расчёт по шагам -->
+    <div class="rb">
+      <div class="rb-t">Расчёт по шагам</div>
+      <div id="stepsBlock"></div>
+    </div>
+
+    <!-- Факторы поправок -->
+    <div class="rb">
+      <div class="rb-t">Факторы поправок</div>
+      <div id="factorsBlock"></div>
+    </div>
+
+    <!-- Справка по глубине заделки -->
+    <div class="depth-info" id="depthInfo"></div>
+
+    <!-- Алерты -->
+    <div id="alertsBlock"></div>
+
+  </div>
+</div>
+
+</div><!-- /grid -->
+</main>
+
+<!-- FOOTER -->
+<footer class="ftr">
+  <div class="ftr-in">
+    <div class="ftr-l">
+      <a class="logo logo-sm" href="#">b<span class="ai">AI</span>kov</a>
+      <span class="ftr-c">Расчёт нормы высева · ГОСТ Р 52325-2005 · ГОСТ 12038-84 · РФ</span>
+    </div>
+    <div class="ftags">
+      <span class="ftag">PWA</span>
+      <span class="ftag">Offline</span>
+      <span class="ftag">v4.0</span>
+      <span class="ftag">11 культур</span>
+      <span class="ftag">РФ</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  СПРАВОЧНИК КУЛЬТУР  (ТЗ v4)
+// ═══════════════════════════════════════════════════════════
+
+const CROPS = {
+
+  // ─── ТИП А: зерновые ────────────────────────────────────
+
+  winter_wheat: {
+    name: 'Пшеница озимая', calcType: 'A',
+    targetLabel: 'Целевая норма, млн вс. семян/га',
+    targetUnit: 'млн шт/га',
+    labGerm_min: 87, purity_min: 98,
+    m1000_range: [35, 55], m1000_def: 42,
+    depth: '5–8 см (оптимум 6 см)',
+    notes: 'Тип А. Расчёт через млн всхожих семян/га. Россельхозцентр.',
+    // базовая норма по регион × предшественник
+    base: {
+      nonchernozem: { fallow:5.5, legume:5.0, grain:5.5, row:5.5, rape:5.5, beet:5.5 },
+      ccr:          { fallow:4.5, legume:4.2, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+      volga:        { fallow:4.0, legume:3.8, grain:4.5, row:4.3, rape:4.3, beet:4.3 },
+      south:        { fallow:3.8, legume:3.5, grain:4.2, row:4.0, rape:4.0, beet:4.0 },
+      ural:         { fallow:5.0, legume:4.8, grain:5.5, row:5.2, rape:5.2, beet:5.2 },
+      west_sib:     { fallow:5.0, legume:4.8, grain:5.5, row:5.2, rape:5.2, beet:5.2 },
+      east_sib:     { fallow:5.0, legume:4.8, grain:5.5, row:5.2, rape:5.2, beet:5.2 },
+      fareast:      { fallow:5.0, legume:4.8, grain:5.5, row:5.2, rape:5.2, beet:5.2 },
+    },
+    baseRange: [3.5, 6.5],
+    kFieldMin: 0.80,
+    timingPenalty: { opt:0, early:0, t1:.015, t2:.030, t3:.050 },
+  },
+
+  spring_wheat: {
+    name: 'Пшеница яровая', calcType: 'A',
+    targetLabel: 'Целевая норма, млн вс. семян/га',
+    targetUnit: 'млн шт/га',
+    labGerm_min: 87, purity_min: 98,
+    m1000_range: [30, 48], m1000_def: 38,
+    depth: '4–6 см',
+    notes: 'Тип А. Нормы различаются по зонам (КубГАУ, региональные рек.).',
+    base: {
+      nonchernozem: { fallow:5.5, legume:5.2, grain:6.0, row:5.8, rape:5.8, beet:5.8 },
+      ccr:          { fallow:4.5, legume:4.2, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+      volga:        { fallow:4.2, legume:4.0, grain:4.8, row:4.5, rape:4.5, beet:4.5 },
+      south:        { fallow:4.0, legume:3.8, grain:4.5, row:4.2, rape:4.2, beet:4.2 },
+      ural:         { fallow:5.0, legume:4.8, grain:5.5, row:5.2, rape:5.2, beet:5.2 },
+      west_sib:     { fallow:5.2, legume:5.0, grain:5.8, row:5.5, rape:5.5, beet:5.5 },
+      east_sib:     { fallow:5.0, legume:4.8, grain:5.5, row:5.2, rape:5.2, beet:5.2 },
+      fareast:      { fallow:5.0, legume:4.8, grain:5.5, row:5.2, rape:5.2, beet:5.2 },
+    },
+    baseRange: [4.0, 7.0],
+    kFieldMin: 0.80,
+    timingPenalty: { opt:0, early:0, t1:.015, t2:.025, t3:.040 },
+  },
+
+  barley_feed: {
+    name: 'Ячмень фуражный', calcType: 'A',
+    targetLabel: 'Целевая норма, млн вс. семян/га',
+    targetUnit: 'млн шт/га',
+    labGerm_min: 87, purity_min: 98,
+    m1000_range: [40, 55], m1000_def: 46,
+    depth: '4–6 см',
+    notes: 'Тип А. Норма зависит от региона и предшественника.',
+    base: {
+      nonchernozem: { fallow:5.0, legume:4.8, grain:5.5, row:5.2, rape:5.2, beet:5.2 },
+      ccr:          { fallow:4.2, legume:4.0, grain:4.8, row:4.5, rape:4.5, beet:4.5 },
+      volga:        { fallow:3.8, legume:3.6, grain:4.3, row:4.0, rape:4.0, beet:4.0 },
+      south:        { fallow:3.6, legume:3.4, grain:4.0, row:3.8, rape:3.8, beet:3.8 },
+      ural:         { fallow:4.5, legume:4.3, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+      west_sib:     { fallow:4.5, legume:4.3, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+      east_sib:     { fallow:4.5, legume:4.3, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+      fareast:      { fallow:4.5, legume:4.3, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+    },
+    baseRange: [3.5, 6.0],
+    kFieldMin: 0.80,
+    timingPenalty: { opt:0, early:0, t1:.015, t2:.025, t3:.040 },
+  },
+
+  barley_brew: {
+    name: 'Ячмень пивоваренный', calcType: 'A',
+    targetLabel: 'Целевая норма, млн вс. семян/га',
+    targetUnit: 'млн шт/га',
+    labGerm_min: 92, purity_min: 99,
+    m1000_range: [42, 58], m1000_def: 48,
+    depth: '4–6 см',
+    notes: 'Тип А. Пивоваренный: повышенные требования к кондиции. ГОСТ Р 52325.',
+    subtypeLabel: 'Морфотип ячменя',
+    subtypes: [
+      { value: 'two_row', label: 'Двурядный' },
+      { value: 'multi_row', label: 'Многорядный' },
+    ],
+    base: {
+      nonchernozem: { fallow:4.8, legume:4.5, grain:5.2, row:5.0, rape:5.0, beet:5.0 },
+      ccr:          { fallow:4.0, legume:3.8, grain:4.5, row:4.2, rape:4.2, beet:4.2 },
+      volga:        { fallow:3.6, legume:3.4, grain:4.0, row:3.8, rape:3.8, beet:3.8 },
+      south:        { fallow:3.4, legume:3.2, grain:3.8, row:3.6, rape:3.6, beet:3.6 },
+      ural:         { fallow:4.3, legume:4.0, grain:4.8, row:4.5, rape:4.5, beet:4.5 },
+      west_sib:     { fallow:4.3, legume:4.0, grain:4.8, row:4.5, rape:4.5, beet:4.5 },
+      east_sib:     { fallow:4.3, legume:4.0, grain:4.8, row:4.5, rape:4.5, beet:4.5 },
+      fareast:      { fallow:4.3, legume:4.0, grain:4.8, row:4.5, rape:4.5, beet:4.5 },
+    },
+    baseRange: [3.2, 5.5],
+    kFieldMin: 0.80,
+    timingPenalty: { opt:0, early:0, t1:.015, t2:.025, t3:.040 },
+  },
+
+  oat: {
+    name: 'Овёс', calcType: 'A',
+    targetLabel: 'Целевая норма, млн вс. семян/га',
+    targetUnit: 'млн шт/га',
+    labGerm_min: 87, purity_min: 97,
+    m1000_range: [25, 42], m1000_def: 32,
+    depth: '4–6 см',
+    notes: 'Тип А. Хорошо переносит кислые почвы. Норма чуть ниже пшеницы.',
+    base: {
+      nonchernozem: { fallow:5.0, legume:4.8, grain:5.5, row:5.2, rape:5.2, beet:5.2 },
+      ccr:          { fallow:4.2, legume:4.0, grain:4.8, row:4.5, rape:4.5, beet:4.5 },
+      volga:        { fallow:3.8, legume:3.6, grain:4.3, row:4.0, rape:4.0, beet:4.0 },
+      south:        { fallow:3.6, legume:3.4, grain:4.0, row:3.8, rape:3.8, beet:3.8 },
+      ural:         { fallow:4.5, legume:4.3, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+      west_sib:     { fallow:4.5, legume:4.3, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+      east_sib:     { fallow:4.5, legume:4.3, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+      fareast:      { fallow:4.5, legume:4.3, grain:5.0, row:4.8, rape:4.8, beet:4.8 },
+    },
+    baseRange: [3.5, 6.0],
+    kFieldMin: 0.80,
+    timingPenalty: { opt:0, early:0, t1:.015, t2:.025, t3:.040 },
+  },
+
+  // ─── ТИП А: зернобобовые ────────────────────────────────
+
+  pea: {
+    name: 'Горох', calcType: 'A',
+    targetLabel: 'Целевая норма, млн вс. семян/га',
+    targetUnit: 'млн шт/га',
+    labGerm_min: 87, purity_min: 98,
+    m1000_range: [180, 300], m1000_def: 230,
+    depth: '6–8 см',
+    notes: 'Тип А. Хороший предшественник, фиксирует азот.',
+    subtypeLabel: 'Морфотип гороха',
+    subtypes: [
+      { value: 'mustache', label: 'Усатый (безлисточковый)' },
+      { value: 'leaf',     label: 'Листочковый' },
+    ],
+    base: {
+      nonchernozem: { fallow:1.2, legume:1.3, grain:1.3, row:1.2, rape:1.2, beet:1.2 },
+      ccr:          { fallow:1.0, legume:1.1, grain:1.2, row:1.1, rape:1.1, beet:1.1 },
+      volga:        { fallow:0.9, legume:1.0, grain:1.1, row:1.0, rape:1.0, beet:1.0 },
+      south:        { fallow:0.9, legume:1.0, grain:1.1, row:1.0, rape:1.0, beet:1.0 },
+      ural:         { fallow:1.1, legume:1.2, grain:1.2, row:1.1, rape:1.1, beet:1.1 },
+      west_sib:     { fallow:1.1, legume:1.2, grain:1.2, row:1.1, rape:1.1, beet:1.1 },
+      east_sib:     { fallow:1.0, legume:1.1, grain:1.2, row:1.1, rape:1.1, beet:1.1 },
+      fareast:      { fallow:1.0, legume:1.1, grain:1.2, row:1.1, rape:1.1, beet:1.1 },
+    },
+    baseRange: [0.8, 1.4],
+    kFieldMin: 0.80,
+    timingPenalty: { opt:0, early:0, t1:.015, t2:.015, t3:.030 },
+  },
+
+  lentil: {
+    name: 'Чечевица', calcType: 'A',
+    targetLabel: 'Целевая норма, млн вс. семян/га',
+    targetUnit: 'млн шт/га',
+    labGerm_min: 85, purity_min: 97,
+    m1000_range: [40, 80], m1000_def: 55,
+    depth: '4–6 см',
+    notes: 'Тип А. Крупносемянная — выше М1000 и ниже норма всходов.',
+    subtypeLabel: 'Тип семян',
+    subtypes: [
+      { value: 'large', label: 'Крупносемянная' },
+      { value: 'small', label: 'Мелкосемянная' },
+    ],
+    base: {
+      nonchernozem: { fallow:1.5, legume:1.5, grain:1.6, row:1.5, rape:1.5, beet:1.5 },
+      ccr:          { fallow:1.3, legume:1.3, grain:1.4, row:1.3, rape:1.3, beet:1.3 },
+      volga:        { fallow:1.2, legume:1.2, grain:1.3, row:1.2, rape:1.2, beet:1.2 },
+      south:        { fallow:1.1, legume:1.1, grain:1.2, row:1.2, rape:1.2, beet:1.2 },
+      ural:         { fallow:1.3, legume:1.3, grain:1.4, row:1.3, rape:1.3, beet:1.3 },
+      west_sib:     { fallow:1.3, legume:1.3, grain:1.5, row:1.4, rape:1.4, beet:1.4 },
+      east_sib:     { fallow:1.2, legume:1.2, grain:1.4, row:1.3, rape:1.3, beet:1.3 },
+      fareast:      { fallow:1.2, legume:1.2, grain:1.4, row:1.3, rape:1.3, beet:1.3 },
+    },
+    baseRange: [1.0, 1.8],
+    kFieldMin: 0.80,
+    timingPenalty: { opt:0, early:0, t1:.015, t2:.015, t3:.030 },
+  },
+
+  chickpea: {
+    name: 'Нут', calcType: 'A',
+    targetLabel: 'Целевая норма, млн вс. семян/га',
+    targetUnit: 'млн шт/га',
+    labGerm_min: 85, purity_min: 97,
+    m1000_range: [200, 450], m1000_def: 300,
+    depth: '6–10 см',
+    notes: 'Тип А. Засухоустойчивая культура. М1000 варьирует сильно.',
+    subtypeLabel: 'Способ посева',
+    subtypes: [
+      { value: 'row',    label: 'Рядовой' },
+      { value: 'widerow', label: 'Широкорядный' },
+    ],
+    base: {
+      nonchernozem: { fallow:0.5, legume:0.5, grain:0.6, row:0.5, rape:0.5, beet:0.5 },
+      ccr:          { fallow:0.5, legume:0.5, grain:0.6, row:0.5, rape:0.5, beet:0.5 },
+      volga:        { fallow:0.45,legume:0.45,grain:0.55,row:0.5, rape:0.5, beet:0.5 },
+      south:        { fallow:0.4, legume:0.4, grain:0.5, row:0.45,rape:0.45,beet:0.45 },
+      ural:         { fallow:0.5, legume:0.5, grain:0.55,row:0.5, rape:0.5, beet:0.5 },
+      west_sib:     { fallow:0.5, legume:0.5, grain:0.55,row:0.5, rape:0.5, beet:0.5 },
+      east_sib:     { fallow:0.45,legume:0.45,grain:0.55,row:0.5, rape:0.5, beet:0.5 },
+      fareast:      { fallow:0.45,legume:0.45,grain:0.55,row:0.5, rape:0.5, beet:0.5 },
+    },
+    baseRange: [0.35, 0.7],
+    kFieldMin: 0.80,
+    timingPenalty: { opt:0, early:.015, t1:.015, t2:.015, t3:.030 },
+  },
+
+  // ─── ТИП Б: масличные крестоцветные ──────────────────────
+
+  rapeseed_spring: {
+    name: 'Рапс яровой', calcType: 'B',
+    targetLabel: 'Целевая густота растений, тыс. шт/га',
+    targetUnit: 'тыс. шт/га',
+    labGerm_min: 85, purity_min: 98,
+    m1000_range: [3.5, 6.5], m1000_def: 4.5,
+    depth: '2–3 см (мелкосемянная культура!)',
+    notes: 'Тип Б. Расчёт от целевой густоты растений. Мелкие семена — точность важна.',
+    base: {
+      nonchernozem: { fallow:700, legume:700, grain:800, row:750, rape:800, beet:800 },
+      ccr:          { fallow:700, legume:700, grain:800, row:750, rape:800, beet:800 },
+      volga:        { fallow:650, legume:650, grain:750, row:700, rape:750, beet:750 },
+      south:        { fallow:700, legume:700, grain:800, row:750, rape:800, beet:800 },
+      ural:         { fallow:700, legume:700, grain:800, row:750, rape:750, beet:750 },
+      west_sib:     { fallow:700, legume:700, grain:800, row:750, rape:750, beet:750 },
+      east_sib:     { fallow:650, legume:650, grain:750, row:700, rape:700, beet:700 },
+      fareast:      { fallow:650, legume:650, grain:750, row:700, rape:700, beet:700 },
+    },
+    baseRange: [600, 1000], // тыс. шт/га
+    kFieldMin: 0.82,
+    timingPenalty: { opt:0, early:.015, t1:.015, t2:.030, t3:.030 },
+  },
+
+  rapeseed_winter: {
+    name: 'Рапс озимый', calcType: 'B',
+    targetLabel: 'Целевая густота растений, тыс. шт/га',
+    targetUnit: 'тыс. шт/га',
+    labGerm_min: 85, purity_min: 98,
+    m1000_range: [4.0, 7.0], m1000_def: 5.0,
+    depth: '1.5–3 см',
+    notes: 'Тип Б. Поправка на перезимовку в этой версии не применяется.',
+    base: {
+      nonchernozem: { fallow:600, legume:600, grain:700, row:650, rape:700, beet:700 },
+      ccr:          { fallow:600, legume:600, grain:700, row:650, rape:700, beet:700 },
+      volga:        { fallow:600, legume:600, grain:700, row:650, rape:700, beet:700 },
+      south:        { fallow:550, legume:550, grain:650, row:600, rape:650, beet:650 },
+      ural:         { fallow:600, legume:600, grain:700, row:650, rape:700, beet:700 },
+      west_sib:     { fallow:600, legume:600, grain:700, row:650, rape:700, beet:700 },
+      east_sib:     { fallow:600, legume:600, grain:700, row:650, rape:700, beet:700 },
+      fareast:      { fallow:600, legume:600, grain:700, row:650, rape:700, beet:700 },
+    },
+    baseRange: [500, 900],
+    kFieldMin: 0.82,
+    timingPenalty: { opt:0, early:.015, t1:.015, t2:.030, t3:.030 },
+  },
+
+  sugar_beet: {
+    name: 'Сахарная свёкла', calcType: 'B',
+    targetLabel: 'Целевая густота растений, тыс. шт/га',
+    targetUnit: 'тыс. шт/га',
+    labGerm_min: 87, purity_min: 98,
+    m1000_range: [18, 28], m1000_def: 22,
+    depth: '3–4 см',
+    notes: 'Тип Б. Точный высев обязателен. Норма дана в тыс. растений/га.',
+    base: {
+      nonchernozem: { fallow:100, legume:100, grain:110, row:105, rape:105, beet:110 },
+      ccr:          { fallow:95,  legume:95,  grain:105, row:100, rape:100, beet:105 },
+      volga:        { fallow:90,  legume:90,  grain:100, row:95,  rape:95,  beet:100 },
+      south:        { fallow:90,  legume:90,  grain:100, row:95,  rape:95,  beet:100 },
+      ural:         { fallow:100, legume:100, grain:110, row:105, rape:105, beet:110 },
+      west_sib:     { fallow:100, legume:100, grain:110, row:105, rape:105, beet:110 },
+      east_sib:     { fallow:95,  legume:95,  grain:105, row:100, rape:100, beet:105 },
+      fareast:      { fallow:95,  legume:95,  grain:105, row:100, rape:100, beet:105 },
+    },
+    baseRange: [80, 130],
+    kFieldMin: 0.85,
+    timingPenalty: { opt:0, early:.020, t1:.020, t2:.040, t3:.040 },
+  },
+};
+
+// Штрафы влажности (ТЗ п.8.2)
+const MOISTURE_P = { ok:0, low:.015, dry:.030 };
+
+// Штрафы энергии прорастания (ТЗ п.8.3)
+function energyPenalty(e) {
+  if (!e || e >= 90) return 0;
+  if (e >= 85) return 0.005;
+  if (e >= 80) return 0.010;
+  if (e >= 75) return 0.020;
+  return 0.030; // <75 — плюс предупреждение
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ДВИЖОК РАСЧЁТА
+// ═══════════════════════════════════════════════════════════
+function calculate(p) {
+  const crop = CROPS[p.cropKey];
+  if (!crop) return null;
+
+  const purity  = +p.purity;
+  const labGerm = +p.labGerm;
+  const m1000   = +p.m1000;
+  const energy  = p.energy ? +p.energy : null;
+
+  // Посевная годность (ТЗ п.6.1)
+  const PG_d = (purity / 100) * (labGerm / 100);
+  const PG_pct = (PG_d * 100).toFixed(1);
+
+  // Штрафы K_field (ТЗ п.7 + п.8)
+  const P_term     = crop.timingPenalty[p.timing] || 0;
+  const P_moisture = MOISTURE_P[p.moisture] || 0;
+  const P_energy   = energyPenalty(energy);
+  const totalPenalty = P_term + P_moisture + P_energy;
+
+  let K_field = 1 - totalPenalty;
+  K_field = Math.max(K_field, crop.kFieldMin);
+  const kFieldClamped = K_field <= crop.kFieldMin + 0.001;
+
+  // Полевая годность
+  const PG_field = PG_d * K_field;
+
+  // Базовая целевая норма из матрицы
+  const regionBase = crop.base[p.region] || crop.base['volga'];
+  const baseValue = regionBase[p.predecessor] || regionBase['grain'];
+
+  // Целевое значение (пользователь или из матрицы)
+  const target = p.target ? +p.target : baseValue;
+
+  // Расчёт числа семян (ТЗ п.9.1 / 9.2)
+  // seeds_sown = target / PG_field
+  const seeds_sown = target / PG_field;
+
+  // Норма в кг/га (ТЗ п.6.2)
+  let rate_kg;
+  if (crop.calcType === 'A') {
+    // target в млн → кг = млн × г
+    rate_kg = seeds_sown * m1000;
+  } else {
+    // target в тыс. шт/га → семян/га = тыс×1000 → кг = шт × г / 1 000 000
+    rate_kg = (seeds_sown * 1000 * m1000) / 1e6;
+  }
+
+  // Форматирование вывода
+  let seedsDisplay, seedsUnit;
+  if (crop.calcType === 'A') {
+    seedsDisplay = seeds_sown.toFixed(2);
+    seedsUnit = 'млн шт/га';
+  } else {
+    seedsDisplay = seeds_sown.toFixed(1);
+    seedsUnit = 'тыс. шт/га';
+  }
+
+  // Шаги расчёта
+  const steps = [];
+  steps.push({ l:'Посевная годность (PG)', v:`${PG_pct}%`,
+    n:`(${purity}% × ${labGerm}%) ÷ 100` });
+  steps.push({ l:'Штраф за срок сева',     v:`${(P_term*100).toFixed(1)}%`, n:'' });
+  steps.push({ l:'Штраф за влажность',     v:`${(P_moisture*100).toFixed(1)}%`, n:'' });
+  if (P_energy > 0)
+    steps.push({ l:'Штраф за энергию',     v:`${(P_energy*100).toFixed(1)}%`, n:'' });
+  steps.push({ l:'Сумма штрафов',           v:`${(totalPenalty*100).toFixed(1)}%`, n:'' });
+  steps.push({ l:'K_field',                 v:K_field.toFixed(3),
+    n: kFieldClamped ? `ограничен минимумом ${crop.kFieldMin}` : `1 − ${(totalPenalty*100).toFixed(1)}%` });
+  steps.push({ l:'Полевая годность (PG_field)', v:`${(PG_field*100).toFixed(1)}%`,
+    n:`${PG_pct}% × ${K_field.toFixed(3)}` });
+  steps.push({ l:'Базовое целевое значение', v:`${baseValue} ${crop.targetUnit}`,
+    n:`регион × предшественник` });
+  if (p.target && +p.target !== baseValue)
+    steps.push({ l:'Введено пользователем',  v:`${target} ${crop.targetUnit}`, n:'' });
+  steps.push({ l:'Норма высева (семян)',     v:`${seedsDisplay} ${seedsUnit}`,
+    n:`${target} ÷ (${(PG_field*100).toFixed(1)}%÷100)` });
+  steps.push({ l:'Норма высева (кг/га)',     v:`${rate_kg.toFixed(1)} кг/га`,
+    n: crop.calcType==='A'
+      ? `${seedsDisplay} млн × ${m1000} г`
+      : `${seedsDisplay} тыс. × ${m1000} г ÷ 1000` });
+
+  // Факторы
+  const factors = [
+    { n:'Срок сева',            p: P_term },
+    { n:'Влажность слоя',       p: P_moisture },
+  ];
+  if (P_energy > 0) factors.push({ n:'Энергия прорастания', p: P_energy });
+
+  // Предупреждения
+  const warns = [], errs = [];
+
+  if (labGerm < crop.labGerm_min)
+    errs.push(`Всхожесть ${labGerm}% ниже кондиционного минимума ${crop.labGerm_min}% (ГОСТ Р 52325-2005). Партия некондиционная.`);
+  if (purity < crop.purity_min)
+    errs.push(`Чистота ${purity}% ниже кондиции ${crop.purity_min}% (ГОСТ Р 52325-2005).`);
+  if (energy !== null && energy < 75)
+    errs.push(`Энергия прорастания ${energy}% < 75% (ГОСТ 12038-84). Рекомендуется пересмотр партии семян.`);
+  if (totalPenalty > 0.10)
+    warns.push(`Сумма штрафов ${(totalPenalty*100).toFixed(1)}% превышает 10%. Условия посева неблагоприятные.`);
+  if (kFieldClamped)
+    warns.push(`K_field достиг минимального порога (${crop.kFieldMin}). Расчёт имеет повышенную неопределённость.`);
+  if (target < crop.baseRange[0] || target > crop.baseRange[1])
+    warns.push(`Целевое значение ${target} выходит за допустимый диапазон ${crop.baseRange[0]}–${crop.baseRange[1]} для данной культуры.`);
+  if (m1000 < crop.m1000_range[0] * 0.8 || m1000 > crop.m1000_range[1] * 1.2)
+    warns.push(`М1000 = ${m1000} г нетипична для ${crop.name} (обычно ${crop.m1000_range[0]}–${crop.m1000_range[1]} г). Проверьте данные.`);
+
+  return {
+    rate_kg: rate_kg.toFixed(1),
+    seedsDisplay, seedsUnit,
+    PG_pct, K_field: K_field.toFixed(3),
+    PG_field_pct: (PG_field*100).toFixed(1),
+    baseValue, target,
+    totalPenalty,
+    steps, factors, warns, errs,
+    depth: crop.depth,
+    cropName: crop.name,
+    calcType: crop.calcType,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  UI CONTROLLER
+// ═══════════════════════════════════════════════════════════
+
+function updateCropUI() {
+  const key = document.getElementById('crop').value;
+  if (!key || !CROPS[key]) {
+    document.getElementById('cropInfoWrap').classList.add('hidden');
+    return;
+  }
+  const c = CROPS[key];
+  const region = document.getElementById('region').value;
+  const pred   = document.getElementById('predecessor').value;
+  const rd = (c.base[region] || c.base['volga']);
+  const baseVal = rd[pred] || rd['grain'];
+
+  // Лейблы
+  document.getElementById('targetLabel').textContent = c.targetLabel;
+  document.getElementById('targetH').textContent =
+    `Реком.: ${c.baseRange[0]}–${c.baseRange[1]} ${c.targetUnit} (авто: ${baseVal})`;
+
+  document.getElementById('m1000H').textContent =
+    `Типично: ${c.m1000_range[0]}–${c.m1000_range[1]} г`;
+  document.getElementById('germH').textContent =
+    `Кондиция ГОСТ ≥${c.labGerm_min}%`;
+  document.getElementById('purityH').textContent =
+    `Кондиция ГОСТ ≥${c.purity_min}%`;
+
+  // Чипы и заметка
+  document.getElementById('cropInfoWrap').classList.remove('hidden');
+  document.getElementById('cropChips').innerHTML =
+    `<span class="chip a">${c.calcType==='A'?'Тип А: млн семян/га':'Тип Б: густота растений'}</span>` +
+    `<span class="chip">М1000 ${c.m1000_range[0]}–${c.m1000_range[1]} г</span>` +
+    `<span class="chip">Всх.≥${c.labGerm_min}%</span>` +
+    `<span class="chip">Гл: ${c.depth.split(' ')[0]}</span>`;
+  document.getElementById('cropNote').textContent = c.notes;
+
+  // Автозаполнение
+  const tEl = document.getElementById('target');
+  if (!tEl.dataset.userEdited) tEl.value = '';
+
+  const mEl = document.getElementById('m1000');
+  if (!mEl.dataset.userEdited) mEl.value = c.m1000_def;
+
+  // Подтипы
+  const sw = document.getElementById('subtypeWrap');
+  if (c.subtypes) {
+    sw.classList.remove('hidden');
+    document.getElementById('subtypeLabel').textContent = c.subtypeLabel;
+    const sel = document.getElementById('subtype');
+    sel.innerHTML = c.subtypes.map(s =>
+      `<option value="${s.value}">${s.label}</option>`
+    ).join('');
+  } else {
+    sw.classList.add('hidden');
+  }
+}
+
+// Ставим флаги на ручное редактирование
+['target','m1000'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    this.dataset.userEdited = '1';
+  });
+});
+
+document.getElementById('crop').addEventListener('change', updateCropUI);
+document.getElementById('region').addEventListener('change', updateCropUI);
+document.getElementById('predecessor').addEventListener('change', updateCropUI);
+
+// Подсказка по энергии
+document.getElementById('energy').addEventListener('input', function() {
+  const v = +this.value;
+  const h = document.getElementById('energyH');
+  if (!v) { h.textContent=''; h.className='fh'; return; }
+  if (v >= 90) { h.textContent='Отлично (штраф 0)'; h.className='fh'; }
+  else if (v >= 85) { h.textContent='Хорошо (штраф 0.5%)'; h.className='fh'; }
+  else if (v >= 80) { h.textContent='Удовлетворительно (штраф 1%)'; h.className='fh warn'; }
+  else if (v >= 75) { h.textContent='Ниже нормы (штраф 2%)'; h.className='fh warn'; }
+  else { h.textContent='Критично! Рекомендуется замена партии'; h.className='fh err'; }
+});
+
+// Кнопка расчёт
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const cropKey = document.getElementById('crop').value;
+  if (!cropKey) { shk('crop'); return; }
+
+  const m1000   = parseFloat(document.getElementById('m1000').value);
+  const labGerm = parseFloat(document.getElementById('labGerm').value);
+  const purity  = parseFloat(document.getElementById('purity').value);
+
+  if (!m1000   || m1000   <= 0) { shk('m1000');  return; }
+  if (!labGerm || labGerm <= 0) { shk('labGerm'); return; }
+  if (!purity  || purity  <= 0) { shk('purity');  return; }
+
+  const p = {
+    cropKey,
+    region:      document.getElementById('region').value,
+    predecessor: document.getElementById('predecessor').value,
+    target:      document.getElementById('target').value || null,
+    m1000, labGerm, purity,
+    energy:  document.getElementById('energy').value  || null,
+    timing:  document.getElementById('timing').value,
+    moisture:document.getElementById('moisture').value,
+  };
+
+  const r = calculate(p);
+  if (r) renderResult(r);
+});
+
+function renderResult(r) {
+  document.getElementById('resEmpty').classList.add('hidden');
+  const rc = document.getElementById('resContent');
+  rc.classList.remove('hidden');
+  rc.style.display = 'flex';
+  rc.classList.remove('fade-in');
+  void rc.offsetWidth;
+  rc.classList.add('fade-in');
+
+  // Главные числа
+  document.getElementById('rKg').textContent  = r.rate_kg;
+  document.getElementById('rPcs').textContent = r.seedsDisplay;
+  document.getElementById('rPcsU').textContent = r.seedsUnit;
+
+  // Ключевые показатели
+  document.getElementById('keyBlock').innerHTML = [
+    { l:`Посевная годность (PG)`,     v:r.PG_pct+'%',         c: +r.PG_pct>=87?'ok':'up' },
+    { l:`K_field`,                    v:r.K_field,              c: +r.K_field>=0.95?'ok':'up' },
+    { l:`Полевая годность (PG_field)`,v:r.PG_field_pct+'%',    c:'eq' },
+    { l:`База из матрицы`,            v:`${r.baseValue} ${CROPS[document.getElementById('crop').value]?.targetUnit||''}`, c:'eq' },
+  ].map(m =>
+    `<div class="frow"><span class="f-n">${m.l}</span><span class="f-v ${m.c}">${m.v}</span></div>`
+  ).join('');
+
+  // Шаги
+  document.getElementById('stepsBlock').innerHTML = r.steps.map(s =>
+    `<div class="srow">
+      <span class="s-l">${s.l}</span>
+      <span class="s-v">${s.v}</span>
+      ${s.n ? `<span class="s-n">${s.n}</span>` : ''}
+    </div>`
+  ).join('');
+
+  // Факторы
+  document.getElementById('factorsBlock').innerHTML = r.factors.map(f =>
+    f.p === 0
+      ? `<div class="frow"><span class="f-n">${f.n}</span><span class="f-v eq">= 0</span></div>`
+      : `<div class="frow"><span class="f-n">${f.n}</span><span class="f-v up">+${(f.p*100).toFixed(1)}%</span></div>`
+  ).join('');
+
+  // Глубина
+  document.getElementById('depthInfo').innerHTML =
+    `<strong>📏 Оптимальная глубина заделки:</strong> ${r.depth} — справочно, не учитывается в расчёте`;
+
+  // Алерты
+  let html = '';
+  if (r.errs.length)
+    html += `<div class="alert alert-e"><div class="al-t">⛔ Нарушения ГОСТ</div><div class="al-rows">${r.errs.map(e=>`<div class="al-row">${e}</div>`).join('')}</div></div>`;
+  if (r.warns.length)
+    html += `<div class="alert alert-w"><div class="al-t">⚠️ Предупреждения</div><div class="al-rows">${r.warns.map(w=>`<div class="al-row">${w}</div>`).join('')}</div></div>`;
+  if (!r.errs.length && !r.warns.length)
+    html = `<div class="alert alert-g"><div class="al-t">✓ Всё в норме</div><div class="al-rows"><div class="al-row">Показатели партии соответствуют ГОСТ Р 52325-2005</div></div></div>`;
+  document.getElementById('alertsBlock').innerHTML = html;
+}
+
+function shk(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+  el.style.borderColor = 'var(--err)';
+  setTimeout(() => el.style.borderColor = '', 1400);
+}
+
+// ── PWA ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+let _dp = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); _dp = e;
+  document.getElementById('instBanner').classList.remove('hidden');
+});
+document.getElementById('instBtn').addEventListener('click', () => {
+  if (_dp) { _dp.prompt(); _dp.userChoice.then(() => { _dp = null; document.getElementById('instBanner').classList.add('hidden'); }); }
+});
+document.getElementById('instX').addEventListener('click', () =>
+  document.getElementById('instBanner').classList.add('hidden'));
+</script>
+</body>
+</html>
